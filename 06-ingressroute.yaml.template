@@ -1,0 +1,31 @@
+# To use this IngressRoute, please refer to: https://github.com/simon-verbois/microk8s-config-traefik/tree/main
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: plex-ingressroute
+  namespace: plex
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`plex.example.org`)
+      kind: Rule
+      services:
+        - name: plex-service
+          port: 32400
+      middlewares:
+        - name: coraza-waf
+          namespace: traefik
+        - name: security-headers
+          namespace: traefik
+        - name: rate-limit
+          namespace: traefik
+
+  tls:
+    certResolver: ovhresolver
+    domains:
+      - main: "plex.example.org"
+    options:
+      name: tls-profile
+      namespace: traefik
