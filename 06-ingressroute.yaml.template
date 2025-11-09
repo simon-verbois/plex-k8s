@@ -1,3 +1,4 @@
+# This IngressRoute is more secure than the default ingress
 # To use this IngressRoute, please refer to: https://github.com/simon-verbois/microk8s-config-traefik/tree/main
 ---
 apiVersion: traefik.io/v1alpha1
@@ -9,7 +10,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`plex.example.org`)
+    - match: Host(`plex.example.org`) # <-- Add you own domain
       kind: Rule
       services:
         - name: plex-service
@@ -21,11 +22,35 @@ spec:
           namespace: traefik
         - name: rate-limit
           namespace: traefik
-
   tls:
     certResolver: ovhresolver
     domains:
-      - main: "plex.example.org"
+      - main: "plex.example.org" # <-- Add you own domain
     options:
       name: tls-profile
       namespace: traefik
+
+# Basic ingress
+#---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: plex-ingress
+#  namespace: plex
+#  annotations:
+#    traefik.ingress.kubernetes.io/router.tls.certresolver: your-ingress-certresolver-name # <-- Add your TLS resolver name
+#spec:
+#  rules:
+#  - host: "plex.example.org" # <-- Add you own domain
+#    http:
+#      paths:
+#      - path: /
+#        pathType: Prefix
+#        backend:
+#          service:
+#            name: plex-service
+#            port:
+#              number: 32400
+#  tls:
+#  - hosts:
+#    - "plex.example.org" # <-- Add you own domain
